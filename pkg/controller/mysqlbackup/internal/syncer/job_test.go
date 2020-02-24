@@ -69,7 +69,7 @@ var _ = Describe("MysqlBackup job syncer", func() {
 	})
 
 	It("should return the master if status is empty/unknown", func() {
-		Expect(syncer.getBackupCandidate()).To(Equal(cluster.GetPodHostname(0)))
+		Expect(syncer.getBackupCandidate()).To(Equal(cluster.GetMasterService()))
 	})
 
 	It("should return the healthy replica", func() {
@@ -97,6 +97,6 @@ var _ = Describe("MysqlBackup job syncer", func() {
 				Conditions: testutil.NodeConditions(false, false, false, true),
 			},
 		}
-		Expect(syncer.getBackupCandidate()).To(Equal(cluster.GetPodHostname(0)))
+		Expect(syncer.getBackupCandidate()).To(Equal(cluster.GetMasterService()))
 	})
 })

@@ -172,6 +172,11 @@ func (c *MysqlCluster) GetMasterHost() string {
 	return masterHost
 }
 
+// GetMasterService returns the name of master service for a cluster
+func (c *MysqlCluster) GetMasterService() string {
+	return GetNameForResource(MasterService, c.ClusterName)
+}
+
 // GetMySQLSemVer returns the MySQL server version in semver format, or the default one
 func (c *MysqlCluster) GetMySQLSemVer() semver.Version {
 	version := c.Spec.MysqlVersion
