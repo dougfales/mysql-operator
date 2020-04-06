@@ -267,7 +267,11 @@ func (r *ReconcileMysqlNode) initializeMySQL(ctx context.Context, sql SQLInterfa
 	if err != nil {
 		return err
 	}
-	defer enableSuperReadOnly()
+	defer func() {
+		if !cluster.Spec.IgnoreReadOnly {
+			enableSuperReadOnly()
+		}
+	}()
 
 	// check if the skip GTID_PURGED annotation is set on the cluster first
 	// and if it's set then mark the GTID_PURGED set in status table
@@ -289,6 +293,12 @@ func (r *ReconcileMysqlNode) initializeMySQL(ctx context.Context, sql SQLInterfa
 		if err := sql.ChangeMasterTo(ctx, cluster.GetMasterHost(), c.ReplicationUser, c.ReplicationPassword); err != nil {
 			return err
 		}
+	} else if cluster.Spec.IgnoreReadOnly {
+		// When ignoreReadOnly setting is true, then only on initialization, we will set the master to writable.
+		// This kicks off the new cluster with a writable master; otherwise it would never be marked writable, as the
+		//ignoreReadOnly setting prevents any interference whatsoever in the Orchestrator reconciliation loop.
+		log.Info("setting master writable on initialization *only* due to ignoreReadOnly=true")
+		sql.DisableReadOnly(ctx)
 	}
 
 	// write the configuration complete flag into MySQL, this will make the node ready

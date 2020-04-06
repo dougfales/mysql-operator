@@ -38,6 +38,7 @@ const (
 type SQLInterface interface {
 	Wait(ctx context.Context) error
 	DisableSuperReadOnly(ctx context.Context) (func(), error)
+	DisableReadOnly(ctx context.Context) error
 	ChangeMasterTo(ctx context.Context, host string, user string, pass string) error
 	MarkConfigurationDone(ctx context.Context) error
 	IsConfigured(ctx context.Context) (bool, error)
@@ -88,6 +89,10 @@ func (r *nodeSQLRunner) DisableSuperReadOnly(ctx context.Context) (func(), error
 		}
 	}
 	return enable, r.runQuery(ctx, "SET GLOBAL READ_ONLY = 1; SET GLOBAL SUPER_READ_ONLY = 0;")
+}
+
+func (r *nodeSQLRunner) DisableReadOnly(ctx context.Context) error {
+	return r.runQuery(ctx, "SET GLOBAL SUPER_READ_ONLY = 0; SET GLOBAL READ_ONLY = 0;")
 }
 
 // ChangeMasterTo changes the master host and starts slave.

@@ -36,6 +36,10 @@ func (f *fakeSQLRunner) DisableSuperReadOnly(ctx context.Context) (func(), error
 	return func() {}, nil
 }
 
+func (f *fakeSQLRunner) DisableReadOnly(ctx context.Context) error {
+	return nil
+}
+
 func (f *fakeSQLRunner) ChangeMasterTo(ctx context.Context, host, user, pass string) error {
 	return nil
 }
